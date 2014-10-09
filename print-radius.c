@@ -647,7 +647,14 @@ static const struct attrtype {
      { "Operator-Name",                   NULL, 0, 0, print_attr_operator_name },
      { "Location-Information",            NULL, 0, 0, print_attr_location_information },
      { "Location-Data",                   NULL, 0, 0, print_attr_location_data },
-     { "Basic-Location-Policy-Rules",     NULL, 0, 0, print_basic_location_policy_rules }
+     { "Basic-Location-Policy-Rules",     NULL, 0, 0, print_basic_location_policy_rules },
+     { "Unassigned",                      NULL, 0, 0, NULL },  /*130*/
+     { "Unassigned",                      NULL, 0, 0, NULL },  /*131*/
+     { "Unassigned",                      NULL, 0, 0, NULL },  /*132*/
+     { "Framed-Management-Protocol",      NULL, 0, 0, NULL }, /*RFC5607, add values (also for Service-Type) */
+     { "Management-Transport-Protection", NULL, 0, 0, NULL }, /*RFC5607, add values (also for Service-Type) */
+     { "Management-Policy-Id",            NULL, 0, 0, print_attr_string }, /*RFC5607*/
+     { "Management-Privilege-Level",      NULL, 0, 0, print_attr_num } /*RFC5607*/
   };
 
 
