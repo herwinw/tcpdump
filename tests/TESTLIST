@@ -274,6 +274,7 @@ decnet		DECnet_Phone.pcap	decnet.out	-t
 
 # RADIUS tests
 radius-v	RADIUS.pcap	radius-v.out	-t -v
+radius-rfc3162	RADIUS-RFC3162.pcap	radius-rfc3162-v.out	-t -v
 radius-rfc4675	RADIUS-RFC4675.pcap	radius-rfc4675-v.out	-t -v
 radius-rfc5176	RADIUS-RFC5176.pcap	radius-rfc5176-v.out	-t -v
 radius-port1700	RADIUS-port1700.pcap	radius-port1700-v.out	-t -v
