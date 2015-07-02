@@ -56,6 +56,9 @@
  * RFC 5176:
  *      "Dynamic Authorization Extensions to RADIUS"
  *
+ * RFC 5580:
+ *      "Carrying Location Objects in RADIUS and Diameter"
+ *
  * RFC 7155:
  *      "Diameter Network Access Server Application"
  *
@@ -163,6 +166,8 @@ static const struct tok radius_command_values[] = {
 
 #define TUNNEL_CLIENT_AUTH 90
 #define TUNNEL_SERVER_AUTH 91
+
+#define ERROR_CAUSE 101
 /********************************/
 /* End Radius Attribute types */
 /********************************/
@@ -382,6 +387,30 @@ static const char *prompt[]={ "No Echo",
                               "Echo",
                             };
 
+/* Error-Cause standard values */
+static struct errorcausetype { u_int index;      /* Numeric value from RFC */
+                                 const char *name; /* Humanreadable value    */
+                               } error_cause[] = {
+                                 { 201, "Residual Session Context Removed" },
+                                 { 202, "Invalid EAP Packet (Ignored)" },
+                                 { 401, "Unsupported Attribute" },
+                                 { 402, "Missing Attribute" },
+                                 { 403, "NAS Identification Mismatch" },
+                                 { 404, "Invalid Request" },
+                                 { 405, "Unsupported Service" },
+                                 { 406, "Unsupported Extension" },
+                                 { 407, "Invalid Attribute Value" },
+                                 { 501, "Administratively Prohibited" },
+                                 { 502, "Request Not Routable (Proxy)" },
+                                 { 503, "Session Context Not Found" },
+                                 { 504, "Session Context Not Removable" },
+                                 { 505, "Other Proxy Processing Error" },
+                                 { 506, "Resources Unavailable" },
+                                 { 507, "Request Initiated" },
+                                 { 508, "Multiple Session Selection Unsupported" },
+                                 { 509, "Location Info Required" }
+                               };
+
 
 static struct attrtype {
                   const char *name;      /* Attribute name                 */
@@ -491,7 +520,8 @@ static struct attrtype {
      { "Framed-IPv6-Prefix",              NULL, 0, 0, print_attr_netmask6 },
      { "Login-IPv6-Host",                 NULL, 0, 0, print_attr_address6 },
      { "Framed-IPv6-Route",               NULL, 0, 0, print_attr_string },
-     { "Framed-IPv6-Pool",                NULL, 0, 0, print_attr_string }
+     { "Framed-IPv6-Pool",                NULL, 0, 0, print_attr_string },
+     { "Error-Cause",                     NULL, 0, 0, print_attr_strange }
   };
 
 
@@ -897,6 +927,7 @@ print_attr_strange(netdissect_options *ndo,
                    register const u_char *data, u_int length, u_short attr_code)
 {
    u_short len_data;
+   u_int error_cause_value, i;
 
    switch(attr_code)
    {
@@ -955,6 +986,27 @@ print_attr_strange(netdissect_options *ndo,
            ND_TCHECK2(data[0],8);
            len_data = 8;
            PRINT_HEX(len_data, data);
+        break;
+
+      case ERROR_CAUSE:
+           if (length != 4)
+           {
+               ND_PRINT((ndo, "Error: length %u != 4", length));
+               return;
+           }
+           ND_TCHECK2(data[0],4);
+
+           error_cause_value = EXTRACT_32BITS(data);
+           for (i=0; i<(sizeof(error_cause)/sizeof(struct errorcausetype)); i++)
+           {
+               if (error_cause[i].index == error_cause_value)
+               {
+                   ND_PRINT((ndo, "Error cause %u: %s", error_cause_value, error_cause[i].name));
+                   return;
+               }
+           }
+
+           ND_PRINT((ndo, "Error: Error-Cause %u not known", error_cause_value));
         break;
    }
    return;
